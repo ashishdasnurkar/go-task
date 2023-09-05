@@ -15,8 +15,7 @@ var tasks []string
 var db *sql.DB
 
 func addTask(task string) {
-	tasks = append(tasks, task)
-	fmt.Println("Added task:", task)
+	//tasks = append(tasks, task)
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -40,9 +39,29 @@ func addTask(task string) {
 		log.Fatal(err)
 	}
 
+	fmt.Println("Added task:", task)
 }
 
 func list() {
+
+	rows, err := db.Query("select description from tasks")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var desc string
+		err = rows.Scan(&desc)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tasks = append(tasks, desc)
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
 	for i, task := range tasks {
 		fmt.Println(i+1, task)
 	}
@@ -88,7 +107,6 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 		task := strings.Join(os.Args[2:], " ")
 		addTask(task)
-
 		list()
 	}
 }
