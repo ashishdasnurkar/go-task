@@ -12,7 +12,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-var tasks []string
 var db *sql.DB
 
 func addTask(task string) {
@@ -43,7 +42,8 @@ func addTask(task string) {
 	fmt.Println("Added task:", task)
 }
 
-func list() {
+func getAllTasks() []string {
+	var tasks []string
 
 	rows, err := db.Query("select description from tasks")
 	if err != nil {
@@ -63,9 +63,19 @@ func list() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return tasks
+}
+
+func list() {
+	tasks := getAllTasks()
+
 	for i, task := range tasks {
 		fmt.Println(i+1, task)
 	}
+}
+
+func markDone(id int) {
 }
 
 func showUsage(returnCode int) {
@@ -126,7 +136,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 	case "list":
 		list()
 	case "done":
-		fmt.Println("Marking task as done:", id)
+		markDone(id)
 	default:
 		showUsage(1)
 	}
