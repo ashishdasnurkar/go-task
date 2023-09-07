@@ -14,8 +14,14 @@ import (
 
 var db *sql.DB
 
+type taskType struct {
+	Id          string
+	Description string
+	Done        bool
+}
+
 func addTask(task string) {
-	//tasks = append(tasks, task)
+	// tasks = append(tasks, task)
 	tx, err := db.Begin()
 	if err != nil {
 		log.Fatal(err)
@@ -42,22 +48,23 @@ func addTask(task string) {
 	fmt.Println("Added task:", task)
 }
 
-func getAllTasks() []string {
-	var tasks []string
+func getAllTasks() []taskType {
+	var tasks []taskType
 
-	rows, err := db.Query("select description from tasks")
+	rows, err := db.Query("select uuid, description, done from tasks")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		var desc string
-		err = rows.Scan(&desc)
+		var id, desc string
+		var done bool
+		err = rows.Scan(&id, &desc, &done)
 		if err != nil {
 			log.Fatal(err)
 		}
-		tasks = append(tasks, desc)
+		tasks = append(tasks, taskType{Id: id, Description: desc, Done: done})
 	}
 	err = rows.Err()
 	if err != nil {
@@ -71,7 +78,7 @@ func list() {
 	tasks := getAllTasks()
 
 	for i, task := range tasks {
-		fmt.Println(i+1, task)
+		fmt.Println(i+1, task.Description)
 	}
 }
 
