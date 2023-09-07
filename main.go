@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -103,6 +104,15 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 	command := os.Args[1]
 
+	id, err := strconv.Atoi(command)
+	if err == nil {
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: go run main.go <TASK_ID> <COMMAND>")
+			os.Exit(1)
+		}
+		command = os.Args[2]
+	}
+
 	switch command {
 	case "add":
 		if len(os.Args) < 3 {
@@ -115,6 +125,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		list()
 	case "list":
 		list()
+	case "done":
+		fmt.Println("Marking task as done:", id)
 	default:
 		showUsage(1)
 	}
