@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -74,6 +75,22 @@ func getAllTasks() []taskType {
 	return tasks
 }
 
+func getTaskByIndex(index int) (taskType, error) {
+	var task taskType
+
+	if index <= 0 {
+		return task, errors.New("Index out of bound")
+	}
+
+	tasks := getAllTasks()
+	if len(tasks) < index {
+		return task, errors.New("Index out of bound")
+	}
+	task = tasks[index-1]
+
+	return task, nil
+}
+
 func list() {
 	tasks := getAllTasks()
 
@@ -83,6 +100,13 @@ func list() {
 }
 
 func markDone(id int) {
+	task, err := getTaskByIndex(id)
+	if err != nil {
+		fmt.Println("Invalid ID")
+		os.Exit(1)
+	}
+
+	fmt.Println(task)
 }
 
 func showUsage(returnCode int) {
