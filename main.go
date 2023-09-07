@@ -99,7 +99,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 	command := os.Args[1]
 
-	if command == "add" {
+	switch command {
+	case "add":
 		if len(os.Args) < 3 {
 			fmt.Println("Usage: go run main.go add <TASK>")
 			os.Exit(1)
@@ -108,5 +109,9 @@ CREATE TABLE IF NOT EXISTS tasks (
 		task := strings.Join(os.Args[2:], " ")
 		addTask(task)
 		list()
+	case "list":
+		list()
+	default:
+		fmt.Println("Unknown command:", command)
 	}
 }
