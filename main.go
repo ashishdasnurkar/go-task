@@ -67,6 +67,11 @@ func list() {
 	}
 }
 
+func showUsage(returnCode int) {
+	fmt.Println("Usage: go run main.go <COMMAND>")
+	os.Exit(returnCode)
+}
+
 func main() {
 	var err error
 	db, err = sql.Open("sqlite3", "./tasks.db")
@@ -93,8 +98,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 	}
 
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run main.go <COMMAND>")
-		os.Exit(1)
+		showUsage(1)
 	}
 
 	command := os.Args[1]
@@ -112,6 +116,6 @@ CREATE TABLE IF NOT EXISTS tasks (
 	case "list":
 		list()
 	default:
-		fmt.Println("Unknown command:", command)
+		showUsage(1)
 	}
 }
