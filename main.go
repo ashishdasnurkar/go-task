@@ -106,7 +106,27 @@ func markDone(id int) {
 		os.Exit(1)
 	}
 
-	fmt.Println(task)
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt, err := tx.Prepare("update tasks set done = true where uuid = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(task.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = tx.Commit()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Marked as done:", task.Description)
 }
 
 func showUsage(returnCode int) {
