@@ -49,10 +49,10 @@ func addTask(task string) {
 	fmt.Println("Added task:", task)
 }
 
-func getAllTasks() []taskType {
+func getAllIncompleteTasks() []taskType {
 	var tasks []taskType
 
-	rows, err := db.Query("select uuid, description, done from tasks")
+	rows, err := db.Query("select uuid, description, done from tasks where done = false")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func getTaskByIndex(index int) (taskType, error) {
 		return task, errors.New("Index out of bound")
 	}
 
-	tasks := getAllTasks()
+	tasks := getAllIncompleteTasks()
 	if len(tasks) < index {
 		return task, errors.New("Index out of bound")
 	}
@@ -92,7 +92,7 @@ func getTaskByIndex(index int) (taskType, error) {
 }
 
 func list() {
-	tasks := getAllTasks()
+	tasks := getAllIncompleteTasks()
 
 	for i, task := range tasks {
 		fmt.Println(i+1, task.Description)
