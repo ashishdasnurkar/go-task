@@ -21,27 +21,34 @@ type taskType struct {
 	Done        bool
 }
 
-func addTask(task string) {
-	// tasks = append(tasks, task)
+func execStatement(stmtStr string, args ...interface{}) error {
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
-	id := uuid.New().String()
-
-	stmt, err := tx.Prepare("insert into tasks (uuid, description, done) values(?, ?, ?)")
+	stmt, err := tx.Prepare(stmtStr)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-
 	defer stmt.Close()
 
-	_, err = stmt.Exec(id, task, false)
+	_, err = stmt.Exec(args...)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addTask(task string) {
+	stmtStr := "insert into tasks (uuid, description, done) values(?, ?, ?)"
+	id := uuid.New().String()
+
+	err := execStatement(stmtStr, id, task, false)
 	if err != nil {
 		log.Fatal(err)
 	}
