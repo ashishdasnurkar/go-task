@@ -56,10 +56,10 @@ func addTask(task string) {
 	fmt.Println("Added task:", task)
 }
 
-func getAllIncompleteTasks() []taskType {
+func getTasks(whereStr string) []taskType {
 	var tasks []taskType
 
-	rows, err := db.Query("select uuid, description, done from tasks where done = false")
+	rows, err := db.Query("select uuid, description, done from tasks "+whereStr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,6 +80,10 @@ func getAllIncompleteTasks() []taskType {
 	}
 
 	return tasks
+}
+
+func getAllIncompleteTasks() []taskType {
+	return getTasks("where done = false")
 }
 
 func getTaskByIndex(index int) (taskType, error) {
