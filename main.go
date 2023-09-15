@@ -86,6 +86,10 @@ func getAllIncompleteTasks() []taskType {
 	return getTasks("where done = false")
 }
 
+func getAllCompletedtasks() []taskType {
+	return getTasks("where done = true")
+}
+
 func getTaskByIndex(index int) (taskType, error) {
 	var task taskType
 
@@ -104,6 +108,14 @@ func getTaskByIndex(index int) (taskType, error) {
 
 func list() {
 	tasks := getAllIncompleteTasks()
+
+	for i, task := range tasks {
+		fmt.Println(i+1, task.Description)
+	}
+}
+
+func listCompleted() {
+	tasks := getAllCompletedtasks()
 
 	for i, task := range tasks {
 		fmt.Println(i+1, task.Description)
@@ -184,6 +196,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		list()
 	case "done":
 		markDone(id)
+	case "completed":
+		listCompleted()
 	default:
 		showUsage(1)
 	}
