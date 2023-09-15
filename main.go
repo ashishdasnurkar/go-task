@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
@@ -19,6 +20,7 @@ type taskType struct {
 	Id          string
 	Description string
 	Done        bool
+	CreatedAt		time.Time `db:"created_at"`
 }
 
 func execStatement(stmtStr string, args ...interface{}) error {
@@ -158,7 +160,8 @@ func main() {
 CREATE TABLE IF NOT EXISTS tasks (
     uuid TEXT PRIMARY KEY,
     description TEXT,
-    done BOOLEAN
+    done BOOLEAN,
+		created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 `
 	_, err = db.Exec(sqlStmt)
