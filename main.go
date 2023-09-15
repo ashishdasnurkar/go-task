@@ -85,7 +85,7 @@ func getTasks(whereStr string) []taskType {
 }
 
 func getAllIncompleteTasks() []taskType {
-	return getTasks("where done = false")
+	return getTasks("where done = false ORDER BY created_at ASC")
 }
 
 func getAllCompletedtasks() []taskType {
