@@ -20,7 +20,7 @@ type taskType struct {
 	Id          string
 	Description string
 	Done        bool
-	CreatedAt		time.Time `db:"created_at"`
+	CreatedAt   time.Time `db:"created_at"`
 }
 
 func execStatement(stmtStr string, args ...interface{}) error {
@@ -61,7 +61,7 @@ func addTask(task string) {
 func getTasks(whereStr string) []taskType {
 	var tasks []taskType
 
-	rows, err := db.Query("select uuid, description, done from tasks "+whereStr)
+	rows, err := db.Query("select uuid, description, done from tasks " + whereStr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,6 +139,22 @@ func markDone(id int) {
 	fmt.Println("Marked as done:", task.Description)
 }
 
+func deleteTask(id int) {
+	task, err := getTaskByIndex(id)
+	if err != nil {
+		fmt.Println("Invalid ID")
+		os.Exit(1)
+	}
+	stmtStr := "delete from tasks where uuid = ?"
+	err = execStatement(stmtStr, task.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Deleted: ", task.Description)
+
+}
+
 func showUsage(returnCode int) {
 	fmt.Println("Usage: go run main.go <COMMAND>")
 	os.Exit(returnCode)
@@ -199,6 +215,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		list()
 	case "done":
 		markDone(id)
+	case "delete":
+		deleteTask(id)
 	case "completed":
 		listCompleted()
 	default:
