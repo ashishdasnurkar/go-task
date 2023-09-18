@@ -155,6 +155,25 @@ func deleteTask(id int) {
 
 }
 
+func editTask(id int) {
+	task, err := getTaskByIndex(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// create string for the tmp file
+	templateStr := `
+# UUID:	%s
+# ID:	%s
+  Description: %s
+`
+	outputStr := fmt.Sprintf(templateStr, task.Id, strconv.Itoa(id), task.Description)
+
+	fmt.Println(outputStr)
+
+	fmt.Println("Editing complete:" + task.Description)
+}
+
 func showUsage(returnCode int) {
 	fmt.Println("Usage: go run main.go <COMMAND>")
 	os.Exit(returnCode)
@@ -217,6 +236,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		markDone(id)
 	case "delete":
 		deleteTask(id)
+	case "edit":
+		editTask(id)
 	case "completed":
 		listCompleted()
 	default:
