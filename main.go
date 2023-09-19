@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -170,6 +171,38 @@ func editTask(id int) {
 	outputStr := fmt.Sprintf(templateStr, task.Id, strconv.Itoa(id), task.Description)
 
 	fmt.Println(outputStr)
+	// write this outputStr to a tmp file
+	tmpFileName := "./tmpTask.task"
+	err = os.WriteFile(tmpFileName, []byte(outputStr), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// open tempTask.task file in default editor
+
+	// Get the EDITOR environment variable.
+	editor := os.Getenv("EDITOR")
+
+	if editor == "" {
+		editor = "vi"
+	}
+
+	cmd := exec.Command(editor, tmpFileName)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	err = cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Read the tmpFile back
+	dat, err := os.ReadFile(tmpFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Print(string(dat))
 
 	fmt.Println("Editing complete:" + task.Description)
 }
