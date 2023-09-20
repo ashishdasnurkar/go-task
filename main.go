@@ -59,6 +59,16 @@ func addTask(task string) {
 	fmt.Println("Added task:", task)
 }
 
+func updateTask(task taskType) {
+	stmtStr := "update tasks set description = ? where uuid = ?"
+	err := execStatement(stmtStr, task.Description, task.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Task updated")
+}
+
 func getTasks(whereStr string) []taskType {
 	var tasks []taskType
 
@@ -215,7 +225,7 @@ func editTask(id int) {
 		if strings.HasPrefix(trimmed, "#") {
 			continue
 		}
-		fmt.Println(trimmed)
+
 		parts := strings.Split(trimmed, ":")
 		if len(parts) < 2 {
 			log.Fatalf("Invalid field: %s", trimmed)
@@ -224,7 +234,6 @@ func editTask(id int) {
 		value := strings.TrimSpace(parts[1])
 
 		if field == "Description" {
-			fmt.Println(value)
 			if task.Description == value {
 				continue
 			}
@@ -241,9 +250,7 @@ func editTask(id int) {
 		os.Exit(0)
 	}
 
-	// call update in DB
-
-	fmt.Println("Editing complete:" + task.Description)
+	updateTask(task)
 }
 
 func showUsage(returnCode int) {
