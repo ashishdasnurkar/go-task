@@ -202,7 +202,46 @@ func editTask(id int) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print(string(dat))
+
+	lines := strings.Split(string(dat), "\n")
+	hasUpdates := false
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		// Ignore blank lines
+		if len(trimmed) == 0 {
+			continue
+		}
+		// Ignore comments
+		if strings.HasPrefix(trimmed, "#") {
+			continue
+		}
+		fmt.Println(trimmed)
+		parts := strings.Split(trimmed, ":")
+		if len(parts) < 2 {
+			log.Fatalf("Invalid field: %s", trimmed)
+		}
+		field := parts[0]
+		value := strings.TrimSpace(parts[1])
+
+		if field == "Description" {
+			fmt.Println(value)
+			if task.Description == value {
+				continue
+			}
+			task.Description = value
+			hasUpdates = true
+			fmt.Println("Updating Description")
+		} else {
+			log.Fatalf("Invalid updat field: %s", field)
+		}
+	}
+
+	if !hasUpdates {
+		fmt.Println("Nothing to update")
+		os.Exit(0)
+	}
+
+	// call update in DB
 
 	fmt.Println("Editing complete:" + task.Description)
 }
