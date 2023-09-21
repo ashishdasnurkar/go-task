@@ -252,6 +252,15 @@ func editTask(id int) {
 
 	updateTask(task)
 }
+func appendTask(id int, descriptionStr string) {
+	task, err := getTaskByIndex(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	task.Description = fmt.Sprintf("%s %s", task.Description, descriptionStr)
+	updateTask(task)
+	fmt.Printf("Appending to task %d '%s'\n", id, task.Description)
+}
 
 func showUsage(returnCode int) {
 	fmt.Println("Usage: go run main.go <COMMAND>")
@@ -306,8 +315,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 			os.Exit(1)
 		}
 
-		task := strings.Join(os.Args[2:], " ")
-		addTask(task)
+		descriptionStr := strings.Join(os.Args[2:], " ")
+		addTask(descriptionStr)
 		list()
 	case "list":
 		list()
@@ -317,6 +326,15 @@ CREATE TABLE IF NOT EXISTS tasks (
 		deleteTask(id)
 	case "edit":
 		editTask(id)
+	case "append":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: go run main.go add <TASK>")
+			os.Exit(1)
+		}
+
+		descriptionStr := strings.Join(os.Args[3:], " ")
+
+		appendTask(id, descriptionStr)
 	case "completed":
 		listCompleted()
 	default:
