@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -18,10 +19,10 @@ import (
 var db *sql.DB
 
 type taskType struct {
-	Id          string
-	Description string
-	Done        bool
-	CreatedAt   time.Time `db:"created_at"`
+	Id          string    `json:"uuid"`
+	Description string    `json:"description"`
+	Done        bool      `json:"done"`
+	CreatedAt   time.Time `json:"createdAt"   db:"created_at"`
 }
 
 func execStatement(stmtStr string, args ...interface{}) error {
@@ -163,7 +164,6 @@ func deleteTask(id int) {
 	}
 
 	fmt.Println("Deleted: ", task.Description)
-
 }
 
 func editTask(id int) {
@@ -270,6 +270,17 @@ func addToDescription(id int, descriptionStr string, isAppend bool) {
 	updateTask(task)
 }
 
+func exportTasks() {
+	tasks := getTasks("")
+
+	jsonData, err := json.MarshalIndent(tasks, "", " ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(jsonData))
+}
+
 func showUsage(returnCode int) {
 	fmt.Println("Usage: go run main.go <COMMAND>")
 	os.Exit(returnCode)
@@ -352,6 +363,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		addToDescription(id, descriptionStr, false)
 	case "completed":
 		listCompleted()
+	case "export":
+		exportTasks()
 	default:
 		showUsage(1)
 	}
