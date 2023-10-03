@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -281,6 +283,33 @@ func exportTasks() {
 	fmt.Println(string(jsonData))
 }
 
+func syncTasks() {
+	task, err := getTaskByIndex(1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	t := &TaskType{
+		Id:          task.Id,
+		Description: task.Description,
+		Done:        task.Done,
+		CreatedAt:   task.CreatedAt.Unix(),
+	}
+
+	// Encode to protobuf
+	data, err := proto.Marshal(t)
+	if err != nil {
+		log.Fatal("Marshaling error: ", err)
+	}
+	fmt.Println(data)
+
+	// Convert to Base64
+	base64Data := base64.StdEncoding.EncodeToString(data)
+
+	// Output the Base64 string
+	fmt.Println("Base64 Encoded Protobuf Data: ", base64Data)
+}
+
 func showUsage(returnCode int) {
 	fmt.Println("Usage: go run main.go <COMMAND>")
 	os.Exit(returnCode)
@@ -365,6 +394,8 @@ CREATE TABLE IF NOT EXISTS tasks (
 		listCompleted()
 	case "export":
 		exportTasks()
+	case "sync":
+		syncTasks()
 	default:
 		showUsage(1)
 	}
