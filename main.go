@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -283,6 +285,31 @@ func exportTasks() {
 	fmt.Println(string(jsonData))
 }
 
+func makeHttpCall(data []byte) {
+	url := "http://localhost:8080/sync"
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	if err != nil {
+		log.Fatal("Error reading request. ", err)
+	}
+
+	req.Header.Set("Content-Type", "application/x-protobuf")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal("Error reading response. ", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal("Error reading response. ", err)
+	}
+
+	fmt.Println("response Body:", string(body))
+}
+
 func syncTasks() {
 	task, err := getTaskByIndex(1)
 	if err != nil {
@@ -301,13 +328,11 @@ func syncTasks() {
 	if err != nil {
 		log.Fatal("Marshaling error: ", err)
 	}
-	fmt.Println(data)
-
-	// Convert to Base64
-	base64Data := base64.StdEncoding.EncodeToString(data)
 
 	// Output the Base64 string
-	fmt.Println("Base64 Encoded Protobuf Data: ", base64Data)
+	//fmt.Println("Base64 Encoded Protobuf Data: ", base64Data)
+
+	makeHttpCall(data)
 }
 
 func showUsage(returnCode int) {
