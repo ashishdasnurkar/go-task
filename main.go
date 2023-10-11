@@ -311,20 +311,25 @@ func makeHttpCall(data []byte) {
 }
 
 func syncTasks() {
-	task, err := getTaskByIndex(1)
-	if err != nil {
-		log.Fatal(err)
+	tasks := getTasks("")
+	var ts []*TaskType
+
+	for _, task := range tasks {
+		t := &TaskType{
+			Id:          task.Id,
+			Description: task.Description,
+			Done:        task.Done,
+			CreatedAt:   task.CreatedAt.Unix(),
+		}
+		ts = append(ts, t)
 	}
 
-	t := &TaskType{
-		Id:          task.Id,
-		Description: task.Description,
-		Done:        task.Done,
-		CreatedAt:   task.CreatedAt.Unix(),
+	taskList := &TaskList{
+		Tasks: ts,
 	}
 
-	// Encode to protobuf
-	data, err := proto.Marshal(t)
+	// Marshal the TaskList into a byte array
+	data, err := proto.Marshal(taskList)
 	if err != nil {
 		log.Fatal("Marshaling error: ", err)
 	}

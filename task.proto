@@ -8,3 +8,7 @@ message TaskType {
   bool done = 3;
   int64 created_at = 4; // You can use a int64 to represent time as Unix timestamp
 }
+
+message TaskList {
+  repeated TaskType tasks = 1;
+}
